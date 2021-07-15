@@ -14,13 +14,13 @@ https://s3.us-west-2.amazonaws.com/cyber-ctf.be/mars.html
 ## Solution
 We are first sent to a good-looking website telling us they detected weird signals coming from mars.
 
-When searching around on the site I found div with what looks like base64 encoded text:
+When searching around on the site I found a div with what looks like base64 encoded text:
 ```HTML
 <div style="display: none;">
  ZXh0ZXJuIGNyYXRlIGJh...
 </div>
 ```
-After decoding the text in the div, I found out it was the language "Rust".
+After decoding the text in the div, I found out it was a code block coded with the language "Rust".
  <details>
     <summary><u>Here's the code</u> (<i>click to expand</i>):</summary>
   
@@ -145,7 +145,7 @@ fn c(&self, i: Vec<u8>) -> Vec<u8> {
         return d.unwrap().to_string(); //added to help compile
     }
   ```
-  -> e(): This function is long and a bit complicated, it does some manipulation of a string given, 1 char at a time - the logic itself is not so important.
+  -> e(): This function is long and a bit complicated, it does some manipulation of a string given, 1 char at a time - the logic itself is not so important, it's a decryption algorithm.
   ```rust
   fn e(&self, message: String) -> String{
         let mut ss = String::from("");
@@ -193,9 +193,9 @@ fn c(&self, i: Vec<u8>) -> Vec<u8> {
   From many tries and failures, I always got high decimal Unicode characters that didn't make any sense: "mņīŒ6ī6ŊōŔŃŊŗ6łīŗ". 
   After tons of tinkering and debugging, I decided to change one value on the e() function ->
   ```rust
-          c = c + (d-1) * b;
+c = c + (d-1) * b;
   ```
-  I changed the (d+1) to a (d-1), just because it was the only part that could lower the decimal value of the characters given, and when I put the string value from the hint (CMObw5jDlMOdw6JKK8OXw5TDocOUSg==) into the decoder, I got this: "ĩliens? here?".
+  I changed the (d+1) to a (d-1), just because it was the only subtle part that could lower the decimal value of the characters given, and when I put the string value from the hint (CMObw5jDlMOdw6JKK8OXw5TDocOUSg==) into the decoder, I got this: "ĩliens? here?".
   
   THIS WAS IT - I was so close. now with a little help of debugging, I found out that +290 was added to the first value - "ĩ" that should have been "a".
   The Unicode value of "ĩ" is 297, and the Unicode value of "a" is 97. I could then see it inside the code:
@@ -207,6 +207,4 @@ fn c(&self, i: Vec<u8>) -> Vec<u8> {
   As you can see, I changed the value of c+=290 to c+=90 and IT WORKED!. I got the value "aliens? here?" when decoding "CMObw5jDlMOdw6JKK8OXw5TDocOUSg==".
            </br>
   ## Flag
-  Now, when decoding the string given in the main function, we get: "What a lovely day" - our flag
-  
- 
+  Now, when decoding the string given in the main function, we get: "What a lovely day" - our flag.
